@@ -1,6 +1,5 @@
 package pl.com.bottega.ecommerce.sales.domain.invoicing;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;

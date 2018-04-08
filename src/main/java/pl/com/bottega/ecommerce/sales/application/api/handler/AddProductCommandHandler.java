@@ -50,14 +50,14 @@ public class AddProductCommandHandler implements CommandHandler<AddProductComman
 		Reservation reservation = reservationRepository.load(command.getOrderId());
 		
 		Product product = productRepository.load(command.getProductId());
-		
+
 		if (! product.isAvailable()){
 			Client client = loadClient();	
 			product = suggestionService.suggestEquivalent(product, client);
 		}
 			
 		reservation.add(product, command.getQuantity());
-		
+
 		reservationRepository.save(reservation);
 		
 		return null;
