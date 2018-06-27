@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 public class AddProductCommandHandlerTest {
 
-    private Id id = new Id("123");
+    private Id id;
 
     private AddProductCommandHandler addProductCommandHandler;
   //  private AddProductCommand addProductCommand;
@@ -38,6 +38,7 @@ public class AddProductCommandHandlerTest {
     Field field;
 
     @Before public void setUp() {
+        id = new Id("123");
         reservationRepository = mock(ReservationRepository.class);
         productRepository = mock(ProductRepository.class);
         suggestionService = mock(SuggestionService.class);
@@ -47,17 +48,7 @@ public class AddProductCommandHandlerTest {
         addProductCommandHandler = new AddProductCommandHandler();
 
         try {
-            field = AddProductCommandHandler.class.getDeclaredField("reservationRepository");
-            field.setAccessible(true);
-            field.set(addProductCommandHandler, reservationRepository);
-
-            field = AddProductCommandHandler.class.getDeclaredField("productRepository");
-            field.setAccessible(true);
-            field.set(addProductCommandHandler, productRepository);
-
-            field = AddProductCommandHandler.class.getDeclaredField("suggestionService");
-            field.setAccessible(true);
-            field.set(addProductCommandHandler, suggestionService);
+            initializeReflection();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,6 +57,20 @@ public class AddProductCommandHandlerTest {
         when(productRepository.load(any(Id.class))).thenReturn(product);
         when(suggestionService.suggestEquivalent(any(Product.class), any(Client.class))).thenReturn(product);
 
+    }
+
+    private void initializeReflection() throws NoSuchFieldException, IllegalAccessException {
+        field = AddProductCommandHandler.class.getDeclaredField("reservationRepository");
+        field.setAccessible(true);
+        field.set(addProductCommandHandler, reservationRepository);
+
+        field = AddProductCommandHandler.class.getDeclaredField("productRepository");
+        field.setAccessible(true);
+        field.set(addProductCommandHandler, productRepository);
+
+        field = AddProductCommandHandler.class.getDeclaredField("suggestionService");
+        field.setAccessible(true);
+        field.set(addProductCommandHandler, suggestionService);
     }
 
     @Test public void methodSaveIsCalled() throws Exception {

@@ -1,5 +1,6 @@
 package pl.com.bottega.ecommerce.sales.domain.invoicing;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
@@ -22,21 +23,32 @@ public class BookKeeperTest {
     private TaxPolicy mockedTaxPolicy = mock(TaxPolicy.class);
     private Id id = new Id("123");
 
+    ProductType standard = ProductType.STANDARD;
+    Money zero = Money.ZERO;
+
+    ClientData client;
+    InvoiceRequest invoiceRequest;
+    ProductData product;
+
+
+    @Before public void setUp() throws Exception {
+        client = new ClientData(id, "test");
+        invoiceRequest = new InvoiceRequest(client);
+        product = new ProductData(id,zero,"klawiatura",standard,new Date());
+    }
 
     @Test public void invoiceWithOnePosition() throws Exception {
 
-        ClientData client = new ClientData(id, "test");
-        InvoiceRequest invoiceRequest = new InvoiceRequest(client);
 
         InvoiceFactory mockedInvoiceFactory = mock(InvoiceFactory.class);
         bookKeeper = new BookKeeper(mockedInvoiceFactory);
 
-        ProductData product = new ProductData(id,Money.ZERO,"klawiatura",ProductType.STANDARD,new Date());
-        RequestItem item = new RequestItem(product,1,Money.ZERO);
+
+        RequestItem item = new RequestItem(product,1,zero);
         invoiceRequest.add(item);
 
         when(mockedInvoiceFactory.create(client)).thenReturn(new Invoice(id,client));
-        when(mockedTaxPolicy.calculateTax(ProductType.STANDARD,Money.ZERO)).thenReturn(new Tax(Money.ZERO,"tax"));
+        when(mockedTaxPolicy.calculateTax(standard,zero)).thenReturn(new Tax(zero,"tax"));
 
         Invoice invoiceResult = bookKeeper.issuance(invoiceRequest,mockedTaxPolicy);
 
@@ -45,37 +57,31 @@ public class BookKeeperTest {
 
     @Test public void invoiceWithTwoPositionsShouldCallCalculateTaxMethodTwice() throws Exception{
 
-        ClientData client = new ClientData(id, "test");
-        InvoiceRequest invoiceRequest = new InvoiceRequest(client);
-
         InvoiceFactory mockedInvoiceFactory = mock(InvoiceFactory.class);
         bookKeeper = new BookKeeper(mockedInvoiceFactory);
 
-        ProductData product = new ProductData(id,Money.ZERO,"klawiatura",ProductType.STANDARD,new Date());
-        RequestItem item = new RequestItem(product,1,Money.ZERO);
+        RequestItem item = new RequestItem(product,1,zero);
         invoiceRequest.add(item);
         invoiceRequest.add(item);
 
         when(mockedInvoiceFactory.create(client)).thenReturn(new Invoice(id,client));
-        when(mockedTaxPolicy.calculateTax(ProductType.STANDARD,Money.ZERO)).thenReturn(new Tax(Money.ZERO,"tax"));
+        when(mockedTaxPolicy.calculateTax(standard,zero)).thenReturn(new Tax(zero,"tax"));
 
         Invoice invoiceResult = bookKeeper.issuance(invoiceRequest,mockedTaxPolicy);
 
-        verify(mockedTaxPolicy,times(2)).calculateTax(ProductType.STANDARD,Money.ZERO);
+        verify(mockedTaxPolicy,times(2)).calculateTax(standard,zero);
     }
 
 
     @Test public void invoiceWithoutPositionsShouldReturnEmptyInvoice() throws Exception{
 
-        ClientData client = new ClientData(id, "test");
-        InvoiceRequest invoiceRequest = new InvoiceRequest(client);
 
         InvoiceFactory mockedInvoiceFactory = mock(InvoiceFactory.class);
         bookKeeper = new BookKeeper(mockedInvoiceFactory);
 
 
         when(mockedInvoiceFactory.create(client)).thenReturn(new Invoice(id,client));
-        when(mockedTaxPolicy.calculateTax(ProductType.STANDARD,Money.ZERO)).thenReturn(new Tax(Money.ZERO,"tax"));
+        when(mockedTaxPolicy.calculateTax(standard,zero)).thenReturn(new Tax(zero,"tax"));
 
         Invoice invoiceResult = bookKeeper.issuance(invoiceRequest,mockedTaxPolicy);
 
@@ -84,19 +90,17 @@ public class BookKeeperTest {
     }
 
     @Test public void InvoiceWithoudPositionsShouldNotCall_calculateTax() throws Exception{
-        ClientData client = new ClientData(id, "test");
-        InvoiceRequest invoiceRequest = new InvoiceRequest(client);
 
         InvoiceFactory mockedInvoiceFactory = mock(InvoiceFactory.class);
         bookKeeper = new BookKeeper(mockedInvoiceFactory);
 
 
         when(mockedInvoiceFactory.create(client)).thenReturn(new Invoice(id,client));
-        when(mockedTaxPolicy.calculateTax(ProductType.STANDARD,Money.ZERO)).thenReturn(new Tax(Money.ZERO,"tax"));
+        when(mockedTaxPolicy.calculateTax(standard,zero)).thenReturn(new Tax(zero,"tax"));
 
         Invoice invoiceResult = bookKeeper.issuance(invoiceRequest,mockedTaxPolicy);
 
-        verify(mockedTaxPolicy,times(0)).calculateTax(ProductType.STANDARD,Money.ZERO);
+        verify(mockedTaxPolicy,times(0)).calculateTax(standard,zero);
 
     }
 
